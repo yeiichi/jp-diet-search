@@ -16,7 +16,20 @@ BASE_URL = "https://kokkai.ndl.go.jp/api"
 
 
 class DietSearchClient:
-    """Thin wrapper around the NDL API using JSON and auto-pagination."""
+    """
+    Client for interacting with the Diet Search API.
+
+    This class provides methods to query different endpoints of the Diet Search API,
+    offering functionality for searching meeting lists, detailed meetings, or individual
+    speeches. It provides options for caching results locally and manages request handling
+    to ensure reliable and efficient access.
+
+    Attributes:
+        base_url (str): The base URL of the Diet Search API.
+        timeout (float): The timeout in seconds for HTTP requests.
+        sleep_seconds (float): The delay in seconds between paginated API requests.
+        cache_dir (Optional[Path]): Directory for storing cached API responses. If None, caching is disabled.
+    """
 
     def __init__(
         self,

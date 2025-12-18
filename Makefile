@@ -2,14 +2,21 @@ PROJECT_NAME := jp-diet-search
 
 .DEFAULT_GOAL := help
 
-.PHONY: help
+# -----------------------------------------------------------
+# Help
+# -----------------------------------------------------------
+.PHONY: help help-all
+
 help: ## Show this help
 	@echo "$(PROJECT_NAME) - helper targets"
 	@echo
-	@awk 'BEGIN {FS = ":.*##"; printf "Available targets:
+	@awk 'BEGIN {FS = ":.*##"; printf "Available targets:\n\n"} \
+		/^[a-zA-Z0-9_-]+:.*##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-"} 		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  [36m%-18s[0m %s
-", $$1, $$2 }' $(MAKEFILE_LIST)
+help-all: ## Show all targets (including internal ones)
+	@echo "$(PROJECT_NAME) - all targets (including internal)"
+	@awk 'BEGIN {FS=":"} /^[a-zA-Z0-9_.-]+:/ {print "  "$$1}' $(MAKEFILE_LIST) | sort -u
+
 
 .PHONY: venv
 venv: ## Create virtualenv in .venv
