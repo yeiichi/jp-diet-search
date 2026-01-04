@@ -5,13 +5,12 @@
 [![License](https://img.shields.io/pypi/l/jp-diet-search.svg)](LICENSE)
 
 
-Python client & CLI for the National Diet Library **Kokkai Kaigiroku Kensaku System**
+Python client for the National Diet Library **Kokkai Kaigiroku Kensaku System**
 (国会会議録検索システム).
 
 This package provides:
 
 - A **plain-vanilla Object API** for programmatic access
-- A **full-featured CLI** for exploratory and batch use
 - Robust error handling and safe pagination
 - No heavy dependencies or hidden magic
 
@@ -28,30 +27,6 @@ This package provides:
 - Typed query objects (`MeetingListQuery`, `MeetingQuery`, `SpeechQuery`)
 - Automatic pagination with optional total caps
 - Optional on-disk caching
-
-### CLI
-
-- Subcommands:
-  - `speech`
-  - `meeting`
-  - `meeting-list`
-- Safety options:
-  - `--dry-run` (metadata only)
-  - `--limit-total N`
-- Output formats:
-  - JSON (default)
-  - JSONL
-  - CSV
-- Optional caching (`--cache-dir`)
-
-### Error Handling
-
-Clear exception taxonomy:
-
-- `DietSearchRequestError` – client-side / request errors
-- `DietSearchParseError` – response parse failures
-- `DietSearchAPIError` – API / HTTP errors
-- `DietSearchRateLimitError` – HTTP 429 (rate limiting)
 
 ---
 
@@ -77,55 +52,6 @@ pip install jp-diet-search
 python -m compileall src   # Verify syntax
 pip install -e .           # Install in editable mode
 pytest                     # Run tests
-```
-
----
-
-## CLI Usage
-
-### Basic search
-
-```bash
-jp-diet-search speech --any 科学技術 --limit-total 10
-```
-
-### Dry-run (safe size check)
-
-```bash
-jp-diet-search speech --any 科学技術 --dry-run
-```
-
-Example output:
-
-```json
-{
-  "numberOfRecords": 75644,
-  "note": "dry-run: records not included"
-}
-```
-
-### Since shortcut
-
-```bash
-jp-diet-search speech --any 科学技術 --since 2024 --dry-run
-```
-
-Equivalent to:
-
-```bash
---from 2024-01-01
-```
-
-### CSV output
-
-```bash
-jp-diet-search speech --any 科学技術 --limit-total 5 --format csv > result.csv
-```
-
-### Enable caching
-
-```bash
-jp-diet-search speech --any 科学技術 --cache-dir .cache_jp_diet --limit-total 20
 ```
 
 ---

@@ -83,6 +83,10 @@ class _DietCore:
     # ---------------- request ----------------
 
     def _request_json(self, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        # Drop None values and force JSON output unless caller explicitly sets it.
+        params = {k: v for k, v in params.items() if v is not None}
+        params.setdefault("recordPacking", "json")
+
         cached = self._load_from_cache(endpoint, params)
         if cached is not None:
             return cached
@@ -169,29 +173,48 @@ class _DietCore:
     ) -> Dict[str, Any]:
         """Fetch pages and aggregate records.
 
-        Returns a dict:
+        This method returns an aggregated structure intended for *human / script* use,
+        while still preserving key fields from the Diet Search API response.
+
+        Returned keys:
           - endpoint, params
-          - totalRecords (if present)
+          - numberOfRecords (API) + totalRecords (alias)
           - retrievedRecords
           - pages
-          - records: list[dict]
+          - records: list[dict] (aggregated across pages)
+          - truncated: bool
+
+        Note: The official API uses `numberOfRecords` (not `totalRecords`).
         """
         self.check_required_any_condition(params)
         limit_total = self.sanitize_limit(limit_total)
 
-        all_records: List[Dict[str, Any]] = []
-        pages = 0
-        total_records = None
-
         # Work on a copy so caller's dict isn't mutated
         cur_params = dict(params)
+
+        # Provide safe defaults (API requires these for paging).
+        cur_params.setdefault("maximumRecords", 100)
+        cur_params.setdefault("startRecord", 1)
+
+        all_records: List[Dict[str, Any]] = []
+        pages = 0
+
+        first_meta: Dict[str, Any] | None = None
+        number_of_records: Optional[int] = None
 
         while True:
             pages += 1
             data = self._request_json(endpoint, cur_params)
 
-            if total_records is None:
-                total_records = data.get("totalRecords")
+            if first_meta is None:
+                # Preserve the first page metadata for convenience.
+                first_meta = {k: v for k, v in data.items() if k != record_key}
+
+            if number_of_records is None:
+                try:
+                    number_of_records = int(data.get("numberOfRecords", 0))
+                except Exception:
+                    number_of_records = None
 
             raw_records = data.get(record_key, []) or []
             if not isinstance(raw_records, list):
@@ -201,15 +224,17 @@ class _DietCore:
                 if isinstance(rec, dict):
                     all_records.append(rec)
                 else:
-                    # keep non-dict as-is but wrap
                     all_records.append({"value": rec})
 
                 if limit_total is not None and len(all_records) >= limit_total:
                     all_records = all_records[:limit_total]
+                    meta = first_meta or {}
                     return {
                         "endpoint": endpoint,
                         "params": params,
-                        "totalRecords": total_records,
+                        **meta,
+                        "numberOfRecords": number_of_records,
+                        "totalRecords": number_of_records,  # alias (convenience)
                         "retrievedRecords": len(all_records),
                         "pages": pages,
                         "records": all_records,
@@ -220,15 +245,22 @@ class _DietCore:
             if not next_pos:
                 break
 
+            # When there's no explicit user limit, stop once we collected all available records.
+            if limit_total is None and number_of_records is not None and len(all_records) >= number_of_records:
+                break
+
             cur_params["startRecord"] = next_pos
 
             if self.sleep_seconds:
                 time.sleep(self.sleep_seconds)
 
+        meta = first_meta or {}
         return {
             "endpoint": endpoint,
             "params": params,
-            "totalRecords": total_records,
+            **meta,
+            "numberOfRecords": number_of_records,
+            "totalRecords": number_of_records,  # alias (convenience)
             "retrievedRecords": len(all_records),
             "pages": pages,
             "records": all_records,
