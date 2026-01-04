@@ -23,3 +23,6 @@ htmlcov/
 .DS_Store
 
 .cache_jp_diet/
+
+*.whl
+*.tar.gz
