@@ -1,27 +1,10 @@
-"""Client library for the 国会会議録検索システム API."""
-
-from .client import DietSearchClient  # noqa: F401
-from .models import (  # noqa: F401
-    MeetingListResult,
-    MeetingRecord,
-    SpeechRecord,
-    SpeechSearchResult,
-)
-from .exceptions import (  # noqa: F401
-    DietSearchAPIError,
-    DietSearchError,
-    DietSearchRequestError,
-)
+from .client import DietClient, DietSearchClient
+from .queries import MeetingListQuery, MeetingQuery, SpeechQuery
 
 __all__ = [
+    "DietClient",
     "DietSearchClient",
-    "MeetingListResult",
-    "MeetingRecord",
-    "SpeechRecord",
-    "SpeechSearchResult",
-    "DietSearchError",
-    "DietSearchRequestError",
-    "DietSearchAPIError",
+    "MeetingListQuery",
+    "MeetingQuery",
+    "SpeechQuery",
 ]
-
-__version__ = "0.1.0"

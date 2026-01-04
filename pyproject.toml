@@ -10,7 +10,27 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-  { name = "Eiichi Yamamoto" }
+  { name = "Eiichi Yamamoto", email = "info@yeiichi.com" }
+]
+keywords = [
+  "Japan",
+  "Diet",
+  "Kokkai",
+  "National Diet Library",
+  "minutes",
+  "parliament",
+  "API",
+  "search",
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
 ]
 dependencies = [
   "requests>=2.31.0",
@@ -19,7 +39,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://kokkai.ndl.go.jp/"
-Source = "https://example.com/your/repo"
+Source = "https://github.com/yeiichi/jp-diet-search"
 
 [project.scripts]
 jp-diet-search = "jp_diet_search.cli:main"
