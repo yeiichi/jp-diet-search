@@ -65,8 +65,20 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="jp-diet-search",
         description="Search the National Diet Library Minutes Search API (国会会議録検索システム).",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+examples:
+  jp-diet-search speech --any "科学技術" --limit-total 5
+  jp-diet-search meeting-list --from-date 2023-01-01 --until-date 2023-12-31
+            """,
     )
-    sub = p.add_subparsers(dest="cmd", required=True)
+    sub = p.add_subparsers(
+        dest="cmd",
+        required=True,
+        title="available commands",
+        description="Run 'jp-diet-search {command} -h' for details on each command.",
+        metavar="{command}",
+    )
 
     # meeting_list
     p_ml = sub.add_parser(
@@ -164,6 +176,14 @@ def _write_json(obj: Any, *, output: str, indent: int, ensure_ascii: bool) -> No
 
 def main(argv: Optional[list[str]] = None) -> int:
     parser = build_parser()
+
+    # Show help if no arguments are provided
+    if argv is None:
+        argv = sys.argv[1:]
+    if not argv:
+        parser.print_help()
+        return 0
+
     args = parser.parse_args(argv)
 
     client = DietClient(
