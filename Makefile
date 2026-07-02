@@ -20,21 +20,25 @@ help-all: ## Show all targets (including internal ones)
 
 .PHONY: venv
 venv: ## Create virtualenv in .venv
-	python -m venv .venv
+	uv venv
 
 .PHONY: install
-install: ## Install package in editable mode (requires activated venv)
-	pip install -e .
+install: ## Sync runtime dependencies into .venv
+	uv sync
 
 .PHONY: test
 test: ## Run tests
-	pytest -q
+	uv run --group dev pytest -q
+
+.PHONY: docs
+docs: ## Build Sphinx docs with warnings treated as errors
+	uv run --extra docs sphinx-build -b html -W docs/source docs/build/html
 
 .PHONY: build
 build: ## Build wheel and sdist
-	python -m build
+	uv run --group dev python -m build
 
 .PHONY: clean
 clean: ## Remove build artifacts
-	rm -rf build dist *.egg-info .pytest_cache .coverage htmlcov
+	rm -rf build dist *.egg-info .pytest_cache .coverage htmlcov docs/build
 	find . -name "__pycache__" -type d -exec rm -rf {} +

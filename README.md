@@ -35,7 +35,7 @@ This package provides:
 For development:
 
 ```bash
-pip install -e .
+uv sync --group dev
 ```
 
 For normal use (after PyPI release):
@@ -49,9 +49,9 @@ pip install jp-diet-search
 ## Development Workflow
 
 ```bash
-python -m compileall src   # Verify syntax
-pip install -e .           # Install in editable mode
-pytest                     # Run tests
+uv sync --group dev        # Install development dependencies
+uv run python -m compileall src
+uv run --group dev pytest
 ```
 
 ---

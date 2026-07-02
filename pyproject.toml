@@ -37,6 +37,18 @@ dependencies = [
   "pydantic>=2.7.0",
 ]
 
+[project.optional-dependencies]
+docs = [
+  "furo>=2024.8.6",
+  "sphinx>=8,<10",
+]
+
+[dependency-groups]
+dev = [
+  "build>=1.2.0",
+  "pytest>=8.0.0",
+]
+
 [project.urls]
 Homepage = "https://kokkai.ndl.go.jp/"
 Source = "https://github.com/yeiichi/jp-diet-search"

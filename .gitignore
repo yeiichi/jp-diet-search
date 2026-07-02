@@ -15,6 +15,9 @@ dist/
 .coverage
 htmlcov/
 
+docs/build/
+docs/source/_build/
+
 .vscode/
 .idea/
 
