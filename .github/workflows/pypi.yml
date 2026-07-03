@@ -108,11 +108,17 @@ jobs:
 
       - name: Build existing distribution
         if: steps.next-version.outputs.release == 'true' && steps.next-version.outputs.existing == 'true'
-        run: uv build
+        run: |
+          rm -rf dist
+          uv build --out-dir dist
+
+      - name: Remove non-distribution files
+        if: steps.next-version.outputs.release == 'true'
+        run: find dist -type f ! -name '*.whl' ! -name '*.tar.gz' -delete
 
       - name: Check distribution metadata
         if: steps.next-version.outputs.release == 'true'
-        run: uv run --frozen --group dev twine check dist/*
+        run: uv run --frozen --group dev twine check dist/*.whl dist/*.tar.gz
 
       - name: Upload distribution artifact
         if: steps.next-version.outputs.release == 'true'
@@ -125,3 +131,5 @@ jobs:
       - name: Publish package distributions to PyPI
         if: steps.next-version.outputs.release == 'true'
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
