@@ -36,7 +36,15 @@ docs: ## Build Sphinx docs with warnings treated as errors
 
 .PHONY: build
 build: ## Build wheel and sdist
-	uv run --group dev python -m build
+	uv build
+
+.PHONY: release-dry-run
+release-dry-run: ## Dry-run Python Semantic Release version detection
+	uv run --frozen --group dev semantic-release --noop version --no-vcs-release
+
+.PHONY: release
+release: ## Real release button: push main and let CI/CD release if needed
+	git push origin main
 
 .PHONY: clean
 clean: ## Remove build artifacts

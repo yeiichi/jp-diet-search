@@ -26,6 +26,8 @@ docs/source/_build/
 .DS_Store
 
 .cache_jp_diet/
+.uv-cache/
+.uv-tool/
 
 *.whl
 *.tar.gz

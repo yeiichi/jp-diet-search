@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
 
 [project]
 name = "jp-diet-search"
@@ -8,7 +8,8 @@ version = "0.1.1"
 description = "Python client & CLI for the National Diet Library Minutes Search API (国会会議録検索システム)"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Eiichi Yamamoto", email = "info@yeiichi.com" }
 ]
@@ -23,7 +24,6 @@ keywords = [
   "search",
 ]
 classifiers = [
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
@@ -46,15 +46,54 @@ docs = [
 [dependency-groups]
 dev = [
   "build>=1.2.0",
+  "python-semantic-release>=10.0.0",
   "pytest>=8.0.0",
+  "twine>=5.0.0",
 ]
 
 [project.urls]
 Homepage = "https://kokkai.ndl.go.jp/"
+Documentation = "https://jp-diet-search.readthedocs.io/"
+Repository = "https://github.com/yeiichi/jp-diet-search"
+Issues = "https://github.com/yeiichi/jp-diet-search/issues"
 Source = "https://github.com/yeiichi/jp-diet-search"
 
 [project.scripts]
 jp-diet-search = "jp_diet_search.cli:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build]
+exclude = [
+  "/.cache_jp_diet",
+  "/.pytest_cache",
+  "/.uv-cache",
+  "/.uv-tool",
+  "/.venv",
+  "/build",
+  "/dist",
+  "/docs/build",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/docs/Makefile",
+  "/docs/source",
+  "/tests",
+  "/LICENSE",
+  "/README.md",
+  "/pyproject.toml",
+  "/src",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jp_diet_search"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+tag_format = "v{version}"
+allow_zero_version = true
+major_on_zero = false
+build_command = "uv build"
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "docs/source/changelog.rst"
+output_format = "rst"
