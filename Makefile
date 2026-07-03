@@ -46,6 +46,10 @@ release-dry-run: ## Dry-run Python Semantic Release version detection
 release: ## Real release button: push main and let CI/CD release if needed
 	git push origin main
 
+.PHONY: release-existing
+release-existing: ## Publish current pyproject version via manual PyPI workflow
+	gh workflow run pypi.yml --ref main -f publish_existing=true
+
 .PHONY: clean
 clean: ## Remove build artifacts
 	rm -rf build dist *.egg-info .pytest_cache .coverage htmlcov docs/build

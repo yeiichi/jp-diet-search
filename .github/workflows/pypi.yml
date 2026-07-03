@@ -7,6 +7,8 @@ on:
   workflow_dispatch:
     inputs:
       publish_existing:
+        # Recovery path: use this only when PSR already created the version/tag,
+        # but the PyPI upload failed and the same version needs another publish attempt.
         description: "Publish the current pyproject.toml version without creating a new PSR release"
         required: true
         type: boolean
@@ -50,7 +52,10 @@ jobs:
     needs: test
     environment: pypi
     permissions:
+      # PSR needs contents:write when it creates the GitHub release metadata.
       contents: write
+      # Required for PyPI Trusted Publishing. The PyPI project must have a
+      # publisher configured for this repo, workflow filename, and environment.
       id-token: write
 
     steps:
@@ -75,6 +80,8 @@ jobs:
       - name: Detect next semantic version
         id: next-version
         run: |
+          # Manual recovery mode: publish the current pyproject.toml version
+          # without asking PSR to create another commit/tag/release.
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish_existing }}" == "true" ]]; then
             CURRENT_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
             echo "release=true" >> "$GITHUB_OUTPUT"
@@ -84,6 +91,8 @@ jobs:
             exit 0
           fi
 
+          # Normal mode: let PSR calculate the next semantic version, but only
+          # publish when that calculated version differs from the latest release.
           NEXT_OUTPUT="$(uv run --frozen --group dev semantic-release version --print)"
           NEXT_VERSION="$(printf '%s\n' "$NEXT_OUTPUT" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$' | tail -n 1 || true)"
           LAST_RELEASED="$(uv run --frozen --group dev semantic-release version --print-last-released)"
@@ -109,11 +118,14 @@ jobs:
       - name: Build existing distribution
         if: steps.next-version.outputs.release == 'true' && steps.next-version.outputs.existing == 'true'
         run: |
+          # Start from a clean dist directory so local ignore markers or stale
+          # artifacts cannot leak into the publish directory.
           rm -rf dist
           uv build --out-dir dist
 
       - name: Remove non-distribution files
         if: steps.next-version.outputs.release == 'true'
+        # The PyPI publish action should see only wheels and sdists here.
         run: find dist -type f ! -name '*.whl' ! -name '*.tar.gz' -delete
 
       - name: Check distribution metadata
